@@ -1,0 +1,15 @@
+# CI4
+/composer.lock
+/vendor/
+/writable/
+/.env
+/env
+/check_*.php
+/debug_*.php
+/inspect_*.php
+/fix_*.php
+/assign_*.php
+/simulate_*.php
+/migration.log
+/.vscode/
+.DS_Store
