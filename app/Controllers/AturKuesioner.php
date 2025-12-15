@@ -43,7 +43,7 @@ class AturKuesioner extends BaseController
         $allQuestions = $pertanyaanModel->where('id_prodi', $assignedProdi['id_prodi'])->findAll();
 
         // Get Currently Active Questions for this Period
-        $activeQuestions = $db->table('pertanyaan_periode_kuisioner')
+        $activeQuestions = $db->table('2301020104_pertanyaan_periode_kuisioner')
                               ->where('id_periode_kuisioner', $id_periode)
                               ->get()->getResultArray();
         
@@ -77,7 +77,7 @@ class AturKuesioner extends BaseController
         $myQuestionIds = $pertanyaanModel->where('id_prodi', $assignedProdi['id_prodi'])->findColumn('id_pertanyaan');
 
         if ($myQuestionIds) {
-            $builder = $db->table('pertanyaan_periode_kuisioner');
+            $builder = $db->table('2301020104_pertanyaan_periode_kuisioner');
             $builder->where('id_periode_kuisioner', $id_periode);
             $builder->whereIn('id_pertanyaan', $myQuestionIds);
             $builder->delete();
@@ -93,7 +93,7 @@ class AturKuesioner extends BaseController
                 ];
             }
             if (!empty($dataToInsert)) {
-                $db->table('pertanyaan_periode_kuisioner')->insertBatch($dataToInsert);
+                $db->table('2301020104_pertanyaan_periode_kuisioner')->insertBatch($dataToInsert);
             }
         }
 

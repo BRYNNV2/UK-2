@@ -1,80 +1,149 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mahasiswa Dashboard - UK2</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <style>
-        body { background-color: #f4f6f9; }
-        .hero-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#"><i class="bi bi-mortarboard me-2"></i>UK2 MAHASISWA</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link text-danger" href="<?= base_url('admin-logout') ?>">Logout</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+<?= $this->extend('student/layout') ?>
 
-    <div class="container mt-4">
-        <div class="card hero-card shadow mb-4">
-            <div class="card-body p-5">
-                <h1 class="display-5 fw-bold">Halo, <?= $mahasiswa['nama_mahasiswa'] ?? user()->username ?>!</h1>
-                <p class="fs-5">Selamat datang di Sistem Kuesioner Universitas.</p>
-                <p>NIM: <strong><?= $mahasiswa['nim'] ?? '-' ?></strong></p>
-                <?php if ($activePeriode && !$hasSubmitted): ?>
-                    <a href="<?= base_url('student/kuesioner') ?>" class="btn btn-light btn-lg mt-3"><i class="bi bi-pencil-square me-2"></i>Isi Kuesioner</a>
-                <?php endif; ?>
+<?= $this->section('content') ?>
+<!-- Page Header -->
+<div class="mb-4">
+    <h4 class="mb-0">Dashboard Mahasiswa</h4>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0 small">
+            <li class="breadcrumb-item active">Home</li>
+        </ol>
+    </nav>
+</div>
+
+<!-- Welcome Hero Card -->
+<div class="card mb-4" style="background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%); color: white; border: none;">
+    <div class="card-body p-4">
+        <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+                <h3 class="mb-2">Selamat Datang, <?= $mahasiswa['nama_mahasiswa'] ?? user()->username ?>!</h3>
+                <p class="mb-2 opacity-90">
+                    <i class="bi bi-mortarboard me-1"></i>
+                    NIM: <strong><?= $mahasiswa['nim'] ?? '-' ?></strong>
+                </p>
+                <p class="mb-0 opacity-75">Portal Sistem Kuesioner Evaluasi Program Studi</p>
+            </div>
+            <div>
+                <i class="bi bi-person-circle" style="font-size: 5rem; opacity: 0.2;"></i>
             </div>
         </div>
-        
-        <?php if (session()->getFlashdata('message')) : ?>
-            <div class="alert alert-success"><?= session()->getFlashdata('message') ?></div>
-        <?php endif; ?>
-        
-        <div class="row" id="kuesioner">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header bg-white py-3">
-                        <h5 class="mb-0 fw-bold">Daftar Kuesioner Tersedia</h5>
+    </div>
+</div>
+
+<?php if (session()->getFlashdata('message')) : ?>
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="bi bi-check-circle me-2"></i>
+        <?= session()->getFlashdata('message') ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+<?php endif; ?>
+
+<?php if (session()->getFlashdata('success')) : ?>
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="bi bi-check-circle me-2"></i>
+        <?= session()->getFlashdata('success') ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+<?php endif; ?>
+
+<!-- Status Cards -->
+<div class="row g-3 mb-4">
+    <!-- Kuesioner Status -->
+    <div class="col-md-6">
+        <div class="card h-100 border-0" style="background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);">
+            <div class="card-body text-white p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <p class="mb-1 opacity-75 text-uppercase" style="font-size: 12px; letter-spacing: 0.5px;">Status Kuesioner</p>
+                        <h4 class="mb-0 fw-bold">
+                            <?php if ($activePeriode): ?>
+                                <?= $hasSubmitted ? 'Sudah Mengisi' : 'Belum Mengisi' ?>
+                            <?php else: ?>
+                                Tidak Ada Periode Aktif
+                            <?php endif; ?>
+                        </h4>
                     </div>
-                    <?php if ($activePeriode): ?>
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center border-bottom pb-3">
-                                <div>
-                                    <h5 class="mb-1">Kuesioner Periode <?= $activePeriode['keterangan'] ?></h5>
-                                    <p class="text-muted mb-0">Status: <span class="badge bg-success">Aktif</span></p>
-                                </div>
-                                <div>
-                                    <?php if ($hasSubmitted): ?>
-                                        <button class="btn btn-secondary" disabled>Sudah Mengisi</button>
-                                    <?php else: ?>
-                                        <a href="<?= base_url('student/kuesioner') ?>" class="btn btn-primary">Isi Sekarang</a>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </div>
-                    <?php else: ?>
-                        <div class="card-body text-center py-5">
-                            <img src="https://cdni.iconscout.com/illustration/premium/thumb/empty-state-2130362-1800926.png" alt="Empty" style="max-width: 200px; opacity: 0.5;">
-                            <p class="text-muted mt-3">Belum ada kuesioner aktif untuk saat ini.</p>
-                        </div>
-                    <?php endif; ?>
+                    <div class="p-3 rounded" style="background: rgba(255,255,255,0.2);">
+                        <i class="bi <?= $hasSubmitted ? 'bi-check-circle' : 'bi-pencil-square' ?> fs-2"></i>
+                    </div>
                 </div>
+                <?php if ($activePeriode): ?>
+                    <div class="mt-3 pt-3 border-top border-white-50">
+                        <small class="opacity-75">
+                            <i class="bi bi-calendar-event me-1"></i>
+                            Periode: <?= $activePeriode['keterangan'] ?>
+                        </small>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    <!-- NIM Card -->
+    <div class="col-md-6">
+        <div class="card h-100 border-0" style="background: linear-gradient(135deg, #64b5f6 0%, #90caf9 100%);">
+            <div class="card-body text-white p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <p class="mb-1 opacity-75 text-uppercase" style="font-size: 12px; letter-spacing: 0.5px;">Nomor Induk</p>
+                        <h4 class="mb-0 fw-bold"><?= $mahasiswa['nim'] ?? '-' ?></h4>
+                    </div>
+                    <div class="p-3 rounded" style="background: rgba(255,255,255,0.2);">
+                        <i class="bi bi-person-vcard fs-2"></i>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-top border-white-50">
+                    <small class="opacity-75">
+                        <i class="bi bi-building me-1"></i>
+                        Mahasiswa Aktif
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Kuesioner Section -->
+<div class="card">
+    <div class="card-header bg-white py-3">
+        <h5 class="mb-0">
+            <i class="bi bi-clipboard-data text-primary me-2"></i>
+            Kuesioner Tersedia
+        </h5>
+    </div>
+    <?php if ($activePeriode): ?>
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-2">Kuesioner Periode <?= $activePeriode['keterangan'] ?></h5>
+                    <p class="text-muted mb-0">
+                        Status: 
+                        <span class="badge bg-success">
+                            <i class="bi bi-circle-fill me-1" style="font-size: 8px;"></i>
+                            Aktif
+                        </span>
+                    </p>
+                </div>
+                <div>
+                    <?php if ($hasSubmitted): ?>
+                        <button class="btn btn-secondary btn-lg" disabled>
+                            <i class="bi bi-check-circle me-2"></i>
+                            Sudah Mengisi
+                        </button>
+                    <?php else: ?>
+                        <a href="<?= base_url('student/kuesioner') ?>" class="btn btn-success btn-lg">
+                            <i class="bi bi-pencil-square me-2"></i>
+                            Isi Sekarang
+                        </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    <?php else: ?>
+        <div class="card-body text-center py-5">
+            <i class="bi bi-calendar-x" style="font-size: 4rem; color: #dee2e6;"></i>
+            <p class="text-muted mt-3 mb-0">Belum ada kuesioner aktif untuk saat ini.</p>
+        </div>
+    <?php endif; ?>
+</div>
+<?= $this->endSection() ?>

@@ -43,6 +43,28 @@ class Student extends BaseController
         return view('student/dashboard', $data);
     }
 
+    public function profile()
+    {
+        helper('auth');
+        $model = new MahasiswaModel();
+        $userId = user_id();
+        $mahasiswa = $model->where('id_user', $userId)->first();
+        
+        $prodiModel = new \App\Models\ProdiModel();
+        $prodi = null;
+        if ($mahasiswa && isset($mahasiswa['id_prodi'])) {
+            $prodi = $prodiModel->find($mahasiswa['id_prodi']);
+        }
+        
+        $data = [
+            'mahasiswa' => $mahasiswa,
+            'prodi' => $prodi,
+            'user' => user()
+        ];
+        
+        return view('student/profile', $data);
+    }
+
     public function kuesioner()
     {
         helper('auth');
@@ -63,16 +85,35 @@ class Student extends BaseController
 
         // Get Questions for Student's Prodi assigned to Active Periode
         $db = \Config\Database::connect();
-        $questions = $db->table('pertanyaan')
-                        ->select('pertanyaan.*')
-                        ->join('pertanyaan_periode_kuisioner', 'pertanyaan.id_pertanyaan = pertanyaan_periode_kuisioner.id_pertanyaan')
-                        ->where('pertanyaan.id_prodi', $mahasiswa['id_prodi'])
-                        ->where('pertanyaan_periode_kuisioner.id_periode_kuisioner', $activePeriode['id_periode'])
+        $questions = $db->table('2301020088_pertanyaan')
+                        ->select('2301020088_pertanyaan.*')
+                        ->join('2301020104_pertanyaan_periode_kuisioner', '2301020088_pertanyaan.id_pertanyaan = 2301020104_pertanyaan_periode_kuisioner.id_pertanyaan')
+                        ->where('2301020088_pertanyaan.id_prodi', $mahasiswa['id_prodi'])
+                        ->where('2301020104_pertanyaan_periode_kuisioner.id_periode_kuisioner', $activePeriode['id_periode'])
                         ->get()->getResultArray();
         
         // Attach Options to Questions
         foreach ($questions as &$q) {
             $q['options'] = $pilihanModel->where('id_pertanyaan', $q['id_pertanyaan'])->findAll();
+        }
+        
+        // Fetch existing answers for this student in this period (for pre-filling)
+        $jawabanModel = new JawabanModel();
+        $existingAnswers = $jawabanModel->where('nim', $mahasiswa['nim'])
+                                        ->where('id_periode', $activePeriode['id_periode'])
+                                        ->findAll();
+        
+        // Create a map: id_pertanyaan => id_pilihan_jawaban_pertanyaan
+        $answerMap = [];
+        foreach ($existingAnswers as $ans) {
+            $answerMap[$ans['id_pertanyaan']] = $ans['id_pilihan_jawaban_pertanyaan'];
+        }
+        
+        // Attach existing answer to each question (if exists)
+        foreach ($questions as &$q) {
+            if (isset($answerMap[$q['id_pertanyaan']])) {
+                $q['existing_answer_option_id'] = $answerMap[$q['id_pertanyaan']];
+            }
         }
 
         $data = [
@@ -87,40 +128,68 @@ class Student extends BaseController
     public function submit()
     {
         helper('auth');
-        $mahasiswaModel = new MahasiswaModel();
+        $model = new MahasiswaModel();
         $periodeModel = new PeriodeModel();
         $jawabanModel = new JawabanModel();
 
         $userId = user_id();
-        $mahasiswa = $mahasiswaModel->where('id_user', $userId)->first();
+        $mahasiswa = $model->where('id_user', $userId)->first();
         $activePeriode = $periodeModel->where('status_periode', 'Aktif')->first();
 
-        $validation = $this->validateRequirement($mahasiswa, $activePeriode);
-        if ($validation !== true) {
-            return $validation;
+        if (!$mahasiswa) {
+            return redirect()->to('student')->with('error', 'Data mahasiswa tidak ditemukan!');
         }
 
-        $answers = $this->request->getPost('jawaban'); // Array of [id_pertanyaan => id_opsi]
+        if (!$activePeriode) {
+            return redirect()->to('student')->with('error', 'Tidak ada periode kuesioner yang aktif!');
+        }
 
-        if ($answers) {
+        $answers = $this->request->getPost('answer');
+        
+        if (!$answers || empty($answers)) {
+            return redirect()->back()->with('error', 'Mohon jawab semua pertanyaan!');
+        }
+
+        try {
+            $dataToSave = [];
+            
+            // Delete existing answers for this periode
+            $jawabanModel->where('nim', $mahasiswa['nim'])
+                        ->where('id_periode', $activePeriode['id_periode'])
+                        ->delete();
+            
+            // Prepare batch data
             foreach ($answers as $id_pertanyaan => $id_opsi) {
-                // Remove ID check from delete to allow bulk delete if needed, or delete specifically?
-                // Simplest: Delete existing answer for this Q and Period and Student
-                $jawabanModel->where('nim', $mahasiswa['nim'])
-                             ->where('id_periode', $activePeriode['id_periode'])
-                             ->where('id_pertanyaan', $id_pertanyaan)
-                             ->delete();
-
-                $jawabanModel->insert([
+                $dataToSave[] = [
                     'nim' => $mahasiswa['nim'],
                     'id_pertanyaan' => $id_pertanyaan,
                     'id_pilihan_jawaban_pertanyaan' => $id_opsi,
                     'id_periode' => $activePeriode['id_periode']
-                ]);
+                ];
             }
-        }
 
-        return redirect()->to('student')->with('message', 'Terima kasih telah mengisi kuesioner!');
+            // Save answers
+            if (!empty($dataToSave)) {
+                $result = $jawabanModel->insertBatch($dataToSave);
+                
+                if (!$result) {
+                    log_message('error', 'Failed to insert jawaban batch: ' . json_encode($dataToSave));
+                    return redirect()->back()->with('error', 'Gagal menyimpan jawaban. Silakan coba lagi.');
+                }
+                
+                log_message('info', "Successfully saved {count($dataToSave)} answers for NIM {$mahasiswa['nim']} periode {$activePeriode['id_periode']}");
+            }
+
+            // Clear cache
+            cache()->clean();
+            
+            // Redirect with success
+            return redirect()->to('student')->with('success', 'Terima kasih telah mengisi kuesioner!');
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Submit error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 
     public function debug()

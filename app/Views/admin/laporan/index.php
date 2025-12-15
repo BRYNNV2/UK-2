@@ -14,7 +14,7 @@
             <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
         <?php endif; ?>
 
-        <form action="<?= base_url('admin/laporan/result') ?>" method="get" target="_blank">
+        <form action="<?= base_url('admin/laporan/result') ?>" method="get">
             <div class="row">
                 <div class="col-md-5 mb-3">
                     <label class="form-label fw-bold">Periode Kuesioner</label>

@@ -4,15 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - UK2</title>
+    <title>Mahasiswa Dashboard - UK2</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
         :root {
             --primary-blue: #1976d2;
-            --sidebar-bg: #f8f9fa;
-            --sidebar-hover: #e9ecef;
-            --sidebar-active: #ffc107;
+            --dark-blue: #0d47a1;
+            --light-blue: #e3f2fd;
+            --sidebar-bg: #ffffff;
+            --sidebar-hover: #f5f5f5;
+            --sidebar-active: #1976d2;
             --header-bg: #0d47a1;
         }
 
@@ -59,6 +61,7 @@
             border-radius: 4px;
             font-size: 14px;
             transition: all 0.3s;
+            text-decoration: none;
         }
 
         .top-header .btn-logout:hover {
@@ -129,8 +132,8 @@
         }
 
         .sidebar-menu .menu-item.active {
-            background: linear-gradient(90deg, var(--sidebar-active) 0%, rgba(255,193,7,0.2) 100%);
-            color: #212529;
+            background: linear-gradient(90deg, rgba(25,118,210,0.15) 0%, rgba(25,118,210,0.05) 100%);
+            color: var(--primary-blue);
             font-weight: 600;
             border-left-color: var(--sidebar-active);
         }
@@ -154,41 +157,12 @@
             margin-left: 0;
         }
 
-        /* Page Header */
-        .page-header {
-            margin-bottom: 25px;
-        }
-
-        .page-header h5 {
-            font-size: 24px;
-            font-weight: 600;
-            color: #212529;
-            margin: 0;
-        }
-
-        .breadcrumb-custom {
-            background: transparent;
-            padding: 0;
-            margin: 5px 0 0 0;
-        }
-
-        .breadcrumb-custom .breadcrumb-item {
-            font-size: 13px;
-        }
-
         /* Cards */
         .card {
             border: none;
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             margin-bottom: 20px;
-        }
-
-        .card-header {
-            background: white;
-            border-bottom: 1px solid #e9ecef;
-            padding: 15px 20px;
-            font-weight: 600;
         }
 
         /* Responsive */
@@ -231,7 +205,7 @@
         </button>
         <div class="system-title">
             <i class="bi bi-mortarboard-fill me-2"></i>
-            Sistem Informasi Pendataan Akademik
+            Portal Mahasiswa - Sistem Kuesioner
         </div>
         <div class="user-info">
             <i class="bi bi-person-circle me-1"></i>
@@ -246,67 +220,26 @@
     <div class="sidebar" id="sidebar">
         <div class="sidebar-menu">
             <!-- Dashboard -->
-            <a href="<?= base_url('admin') ?>" class="menu-item <?= uri_string() == 'admin' ? 'active' : '' ?>">
+            <a href="<?= base_url('student') ?>" class="menu-item <?= uri_string() == 'student' ? 'active' : '' ?>">
                 <i class="bi bi-house-door"></i>
-                <span>Halaman Utama</span>
+                <span>Dashboard</span>
             </a>
 
-            <?php if (in_groups('admin')) : ?>
-                <!-- Pengguna -->
-                <div class="menu-section">Pengguna</div>
-                <a href="<?= base_url('admin/users') ?>" class="menu-item <?= str_contains(uri_string(), 'users') ? 'active' : '' ?>">
-                    <i class="bi bi-people"></i>
-                    <span>Kelola User</span>
-                </a>
-
-                <!-- Akademik -->
-                <div class="menu-section">Akademik</div>
-                <a href="<?= base_url('admin/fakultas') ?>" class="menu-item <?= str_contains(uri_string(), 'fakultas') ? 'active' : '' ?>">
-                    <i class="bi bi-building"></i>
-                    <span>Fakultas</span>
-                </a>
-                <a href="<?= base_url('admin/jurusan') ?>" class="menu-item <?= str_contains(uri_string(), 'jurusan') ? 'active' : '' ?>">
-                    <i class="bi bi-diagram-3"></i>
-                    <span>Jurusan</span>
-                </a>
-                <a href="<?= base_url('admin/prodi') ?>" class="menu-item <?= str_contains(uri_string(), 'prodi') ? 'active' : '' ?>">
-                    <i class="bi bi-mortarboard"></i>
-                    <span>Program Studi</span>
-                </a>
-
-                <!-- Mahasiswa -->
-                <div class="menu-section">Mahasiswa</div>
-                <a href="<?= base_url('admin/mahasiswa') ?>" class="menu-item <?= str_contains(uri_string(), 'mahasiswa') ? 'active' : '' ?>">
-                    <i class="bi bi-person-vcard"></i>
-                    <span>Data Mahasiswa</span>
-                </a>
-            <?php endif; ?>
-
-            <?php if (in_groups(['kaprodi'])) : ?>
-                <!-- Kuesioner -->
+            <!-- Kuesioner -->
+            <?php if (isset($activePeriode) && $activePeriode && isset($hasSubmitted) && !$hasSubmitted): ?>
                 <div class="menu-section">Kuesioner</div>
-                <a href="<?= base_url('admin/periode') ?>" class="menu-item <?= str_contains(uri_string(), 'periode') ? 'active' : '' ?>">
-                    <i class="bi bi-calendar-event"></i>
-                    <span>Atur Periode</span>
-                </a>
-                <a href="<?= base_url('admin/pertanyaan') ?>" class="menu-item <?= str_contains(uri_string(), 'pertanyaan') ? 'active' : '' ?>">
-                    <i class="bi bi-question-circle"></i>
-                    <span>Bank Pertanyaan</span>
-                </a>
-                <a href="<?= base_url('admin/atur-kuesioner') ?>" class="menu-item <?= str_contains(uri_string(), 'atur-kuesioner') ? 'active' : '' ?>">
-                    <i class="bi bi-list-check"></i>
-                    <span>Atur Kuesioner</span>
+                <a href="<?= base_url('student/kuesioner') ?>" class="menu-item <?= str_contains(uri_string(), 'kuesioner') ? 'active' : '' ?>">
+                    <i class="bi bi-pencil-square"></i>
+                    <span>Isi Kuesioner</span>
                 </a>
             <?php endif; ?>
-
-            <?php if (in_groups(['pimpinan', 'kaprodi'])) : ?>
-                <!-- Laporan -->
-                <div class="menu-section">Laporan</div>
-                <a href="<?= base_url('admin/laporan') ?>" class="menu-item <?= str_contains(uri_string(), 'laporan') ? 'active' : '' ?>">
-                    <i class="bi bi-file-earmark-bar-graph"></i>
-                    <span>Laporan Hasil</span>
-                </a>
-            <?php endif; ?>
+            
+            <!-- Profile -->
+            <div class="menu-section">Akun</div>
+            <a href="<?= base_url('student/profile') ?>" class="menu-item <?= str_contains(uri_string(), 'profile') ? 'active' : '' ?>">
+                <i class="bi bi-person"></i>
+                <span>Profil Saya</span>
+            </a>
         </div>
     </div>
 

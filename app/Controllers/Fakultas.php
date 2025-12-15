@@ -23,7 +23,7 @@ class Fakultas extends BaseController
         $model = new FakultasModel();
         
         if (!$this->validate([
-            'nama_fakultas' => 'required|min_length[3]|is_unique[fakultas.nama_fakultas]'
+            'nama_fakultas' => 'required|min_length[3]|is_unique[2301020005_fakultas.nama_fakultas]'
         ])) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
@@ -53,7 +53,7 @@ class Fakultas extends BaseController
 
         // Note: is_unique[table.field,ignore_field,ignore_value]
         if (!$this->validate([
-            'nama_fakultas' => "required|min_length[3]|is_unique[fakultas.nama_fakultas,id_fakultas,$id]"
+            'nama_fakultas' => "required|min_length[3]|is_unique[2301020005_fakultas.nama_fakultas,id_fakultas,$id]"
         ])) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }

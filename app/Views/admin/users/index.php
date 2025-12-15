@@ -27,7 +27,7 @@
                 </thead>
                 <tbody>
                     <?php foreach ($users as $user) : ?>
-                    <tr>
+                    <tr id="user-row-<?= $user['id'] ?>">
                         <td><?= $user['id'] ?></td>
                         <td><?= $user['nama_user'] ?></td>
                         <td><?= $user['username'] ?></td>
@@ -44,7 +44,7 @@
                         </td>
                         <td>
                             <a href="<?= base_url('admin/users/edit/'.$user['id']) ?>" class="btn btn-warning btn-sm">Edit</a>
-                            <a href="<?= base_url('admin/users/delete/'.$user['id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Yakin hapus?')">Hapus</a>
+                            <button class="btn btn-danger btn-sm btn-delete" data-id="<?= $user['id'] ?>" data-name="<?= $user['nama_user'] ?>">Hapus</button>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -53,4 +53,85 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all delete buttons
+    const deleteButtons = document.querySelectorAll('.btn-delete');
+    
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const userId = this.getAttribute('data-id');
+            const userName = this.getAttribute('data-name');
+            
+            // Confirm deletion
+            if (!confirm(`Yakin ingin menghapus user "${userName}"?`)) {
+                return;
+            }
+            
+            // Disable button
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Hapus...';
+            
+            // Send AJAX request
+            fetch('<?= base_url('admin/users/delete/') ?>' + userId, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove row with fade effect
+                    const row = document.getElementById('user-row-' + userId);
+                    row.style.transition = 'opacity 0.3s';
+                    row.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        row.remove();
+                        
+                        // Show success notification
+                        showNotification('success', data.message);
+                    }, 300);
+                } else {
+                    // Show error and re-enable button
+                    showNotification('error', data.message);
+                    this.disabled = false;
+                    this.innerHTML = 'Hapus';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('error', 'Terjadi kesalahan saat menghapus user');
+                this.disabled = false;
+                this.innerHTML = 'Hapus';
+            });
+        });
+    });
+    
+    // Notification function
+    function showNotification(type, message) {
+        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+        const notification = document.createElement('div');
+        notification.className = `alert ${alertClass} alert-dismissible fade show`;
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        // Insert notification
+        const container = document.querySelector('.container');
+        container.insertBefore(notification, container.firstChild);
+        
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+});
+</script>
 <?= $this->endSection() ?>

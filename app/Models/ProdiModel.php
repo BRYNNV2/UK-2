@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class ProdiModel extends Model
 {
-    protected $table            = 'prodi';
+    protected $table            = '2301020011_prodi';
     protected $primaryKey       = 'id_prodi';
     protected $useAutoIncrement = true;
     protected $allowedFields    = ['id_jurusan', 'nama_prodi', 'jenjang', 'id_kaprodi'];
@@ -14,9 +14,9 @@ class ProdiModel extends Model
 
     public function getProdiWithJurusan()
     {
-        return $this->select('prodi.*, jurusan.nama_jurusan, fakultas.nama_fakultas')
-                    ->join('jurusan', 'jurusan.id_jurusan = prodi.id_jurusan')
-                    ->join('fakultas', 'fakultas.id_fakultas = jurusan.id_fakultas')
+        return $this->select('2301020011_prodi.*, 2301020008_jurusan.nama_jurusan, 2301020005_fakultas.nama_fakultas')
+                    ->join('2301020008_jurusan', '2301020008_jurusan.id_jurusan = 2301020011_prodi.id_jurusan')
+                    ->join('2301020005_fakultas', '2301020005_fakultas.id_fakultas = 2301020008_jurusan.id_fakultas')
                     ->findAll();
     }
 }

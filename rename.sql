@@ -1,0 +1,10 @@
+RENAME TABLE users TO `2301020001_user`;
+RENAME TABLE fakultas TO `2301020005_fakultas`;
+RENAME TABLE jurusan TO `2301020008_jurusan`;
+RENAME TABLE prodi TO `2301020011_prodi`;
+RENAME TABLE periode_kuisioner TO `2301020037_periode_kuisioner`;
+RENAME TABLE pertanyaan TO `2301020088_pertanyaan`;
+RENAME TABLE pilihan_jawaban_pertanyaan TO `2301020093_pilihan_jawaban_pertanyaan`;
+RENAME TABLE pertanyaan_periode_kuisioner TO `2301020104_pertanyaan_periode_kuisioner`;
+RENAME TABLE mahasiswa TO `2301020111_mahasiswa`;
+RENAME TABLE jawaban TO `2301020043_jawaban`;

@@ -19,14 +19,37 @@ use CodeIgniter\Config\BaseService;
  */
 class Services extends BaseService
 {
-    /*
-     * public static function example($getShared = true)
-     * {
-     *     if ($getShared) {
-     *         return static::getSharedInstance('example');
-     *     }
-     *
-     *     return new \CodeIgniter\Example();
-     * }
-     */
+    public static function authentication(string $lib = 'local', ?\CodeIgniter\Model $userModel = null, ?\CodeIgniter\Model $loginModel = null, bool $getShared = true)
+    {
+        if ($getShared) {
+            return static::getSharedInstance('authentication', $lib, $userModel, $loginModel, false);
+        }
+
+        $config = config('Auth');
+        $config->userModel = 'App\Models\UserModel';
+
+        $class = $config->authenticationLibs[$lib];
+        $instance = new $class($config);
+        
+        // Force set userModel dengan reflection
+        $userModelInstance = new \App\Models\UserModel();
+        
+        $ref = new \ReflectionClass($instance);
+        if ($ref->hasProperty('userModel')) {
+            $prop = $ref->getProperty('userModel');
+            $prop->setAccessible(true);
+            $prop->setValue($instance, $userModelInstance);
+        }
+        
+        // Force set loginModel juga
+        $loginModelInstance = model('Myth\Auth\Models\LoginModel');
+        
+        if ($ref->hasProperty('loginModel')) {
+            $prop = $ref->getProperty('loginModel');
+            $prop->setAccessible(true);
+            $prop->setValue($instance, $loginModelInstance);
+        }
+        
+        return $instance;
+    }
 }

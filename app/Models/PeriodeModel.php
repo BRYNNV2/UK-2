@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class PeriodeModel extends Model
 {
-    protected $table            = 'periode_kuisioner';
+    protected $table            = '2301020037_periode_kuisioner';
     protected $primaryKey       = 'id_periode';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';

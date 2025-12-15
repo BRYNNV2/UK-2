@@ -20,9 +20,9 @@ class Prodi extends BaseController
         
         // Fetch Kaprodis - users with 'kaprodi' role
         $db = \Config\Database::connect();
-        $kaprodis = $db->table('users')
-                       ->select('users.id, users.nama_user')
-                       ->join('auth_groups_users', 'auth_groups_users.user_id = users.id')
+        $kaprodis = $db->table('2301020001_user')
+                       ->select('2301020001_user.id, 2301020001_user.nama_user')
+                       ->join('auth_groups_users', 'auth_groups_users.user_id = 2301020001_user.id')
                        ->join('auth_groups', 'auth_groups.id = auth_groups_users.group_id')
                        ->where('auth_groups.name', 'kaprodi')
                        ->get()->getResultArray();
@@ -67,9 +67,9 @@ class Prodi extends BaseController
         // Fetch Kaprodis - users with 'kaprodi' role (and pimpinan for flexibility if needed, or just kaprodi)
         // Or users who CAN be kaprodi. For now fetch 'kaprodi' group.
         $db = \Config\Database::connect();
-        $data['kaprodis'] = $db->table('users')
-                       ->select('users.id, users.nama_user')
-                       ->join('auth_groups_users', 'auth_groups_users.user_id = users.id')
+        $data['kaprodis'] = $db->table('2301020001_user')
+                       ->select('2301020001_user.id, 2301020001_user.nama_user')
+                       ->join('auth_groups_users', 'auth_groups_users.user_id = 2301020001_user.id')
                        ->join('auth_groups', 'auth_groups.id = auth_groups_users.group_id')
                        ->whereIn('auth_groups.name', ['kaprodi'])
                        ->get()->getResultArray();

@@ -20,6 +20,18 @@ class Mahasiswa extends BaseController
     {
         $prodiModel = new ProdiModel();
         $data['prodi'] = $prodiModel->findAll();
+        
+        // Get users with role 'mahasiswa' yang belum punya data mahasiswa
+        $db = \Config\Database::connect();
+        $data['available_users'] = $db->table('2301020001_user')
+            ->select('2301020001_user.id, 2301020001_user.username, 2301020001_user.email')
+            ->join('auth_groups_users', 'auth_groups_users.user_id = 2301020001_user.id')
+            ->join('auth_groups', 'auth_groups.id = auth_groups_users.group_id')
+            ->where('auth_groups.name', 'mahasiswa')
+            ->where('2301020001_user.id NOT IN (SELECT id_user FROM 2301020111_mahasiswa WHERE id_user IS NOT NULL)', null, false)
+            ->get()
+            ->getResultArray();
+        
         return view('admin/mahasiswa/create', $data);
     }
 
@@ -28,43 +40,48 @@ class Mahasiswa extends BaseController
         $model = new MahasiswaModel();
         
         if (!$this->validate([
-            'nim'            => 'required|min_length[5]|is_unique[mahasiswa.nim]',
+            'nim'            => 'required|min_length[5]|is_unique[2301020111_mahasiswa.nim]',
             'nama_mahasiswa' => 'required|min_length[3]',
             'id_prodi'       => 'required'
         ])) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        // 1. Create User Account (Myth:Auth)
-        $userModel = new UserModel();
-        $groupModel = new GroupModel();
-
         $nim = $this->request->getPost('nim');
+        $existingUserId = $this->request->getPost('existing_user_id');
         
-        $userInfo = [
-            'username' => $nim,
-            'email'    => $nim . '@monitor.id', // Dummy email
-            'password' => $nim, // Default password = NIM
-            'pass_confirm' => $nim,
-            'active'   => 1,
-            'nama_user'=> $this->request->getPost('nama_mahasiswa')
-        ];
+        // Check jika user existing dipilih
+        if (!empty($existingUserId) && $existingUserId != '') {
+            // Link ke user existing
+            $userId = $existingUserId;
+        } else {
+            // Create User Account baru (Myth:Auth)
+            $userModel = new UserModel();
+            $groupModel = new GroupModel();
+            
+            $userInfo = [
+                'username' => $nim,
+                'email'    => $nim . '@monitor.id', // Dummy email
+                'password' => $nim, // Default password = NIM
+                'pass_confirm' => $nim,
+                'active'   => 1,
+                'nama_user'=> $this->request->getPost('nama_mahasiswa')
+            ];
 
-        $userId = $userModel->insert($userInfo);
+            $userId = $userModel->insert($userInfo);
 
-        if (!$userId) {
-            return redirect()->back()->withInput()->with('errors', $userModel->errors());
+            if (!$userId) {
+                return redirect()->back()->withInput()->with('errors', $userModel->errors());
+            }
+
+            // Assign Role 'mahasiswa'
+            $group = $groupModel->where('name', 'mahasiswa')->first();
+            if ($group) {
+                $groupModel->addUserToGroup($userId, $group->id);
+            }
         }
 
-        // 2. Assign Role 'mahasiswa'
-        // Check if group exists first or just assume? Seeder should have created it.
-        // Group ID for mahasiswa? Or use name. addToGroup uses group_id. We need to find group id by name 'mahasiswa'
-        $group = $groupModel->where('name', 'mahasiswa')->first();
-        if ($group) {
-            $groupModel->addUserToGroup($userId, $group->id);
-        }
-
-        // 3. Save Mahasiswa Data
+        // Save Mahasiswa Data
         $model->save([
             'nim'            => $nim,
             'nama_mahasiswa' => $this->request->getPost('nama_mahasiswa'),
@@ -72,7 +89,7 @@ class Mahasiswa extends BaseController
             'id_user'        => $userId
         ]);
 
-        return redirect()->to('admin/mahasiswa')->with('message', 'Mahasiswa (dan Akun Login) berhasil ditambahkan');
+        return redirect()->to('admin/mahasiswa')->with('message', 'Mahasiswa berhasil ditambahkan');
     }
 
     public function edit($nim)
@@ -96,7 +113,7 @@ class Mahasiswa extends BaseController
 
         // Validasi NIM unik kecuali untuk diri sendiri
         if (!$this->validate([
-            'nim'            => "required|min_length[5]|is_unique[mahasiswa.nim,nim,$nim]",
+            'nim'            => "required|min_length[5]|is_unique[2301020111_mahasiswa.nim,nim,$nim]",
             'nama_mahasiswa' => 'required|min_length[3]',
             'id_prodi'       => 'required'
         ])) {

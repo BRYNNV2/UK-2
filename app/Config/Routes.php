@@ -22,7 +22,7 @@ $routes->group('admin', ['filter' => 'role:admin,pimpinan,kaprodi'], function ($
         $routes->post('users/store', 'Admin::storeUser');
         $routes->get('users/edit/(:num)', 'Admin::editUser/$1');
         $routes->post('users/update/(:num)', 'Admin::updateUser/$1');
-        $routes->get('users/delete/(:num)', 'Admin::deleteUser/$1');
+        $routes->post('users/delete/(:num)', 'Admin::deleteUser/$1');
 
         // Fakultas Management
         $routes->get('fakultas', 'Fakultas::index');
@@ -77,11 +77,16 @@ $routes->group('admin', ['filter' => 'role:admin,pimpinan,kaprodi'], function ($
         $routes->get('atur-kuesioner/edit/(:num)', 'AturKuesioner::edit/$1');
         $routes->post('atur-kuesioner/save/(:num)', 'AturKuesioner::save/$1');
     });
+    // System Fix - Temporary (Moved out)
 });
+
+$routes->get('system-fix', 'SystemFix::index');
+$routes->get('debug-auth', 'Debug::index');
 
 // Student Routes
 $routes->group('student', ['filter' => 'role:mahasiswa'], function($routes) {
     $routes->get('/', 'Student::index');
+    $routes->get('profile', 'Student::profile');
     $routes->get('kuesioner', 'Student::kuesioner');
     $routes->post('submit', 'Student::submit');
     $routes->get('debug', 'Student::debug');
@@ -92,3 +97,5 @@ $routes->post('login', 'Auth::loginAction');
 $routes->get('admin-logout', 'Home::logout');
 $routes->get('auth-debug', 'AuthDebug::index');
 
+// Debug route
+$routes->get('debug/submission', 'DebugStudent::checkSubmission');

@@ -20,6 +20,17 @@ class Auth extends \Myth\Auth\Config\Auth
 
     /**
      * --------------------------------------------------------------------
+     * User Model
+     * --------------------------------------------------------------------
+     *
+     * Name of the User Model class to use.
+     *
+     * @var string
+     */
+    public $userModel = 'App\Models\UserModel';
+
+    /**
+     * --------------------------------------------------------------------
      * Landing Route
      * --------------------------------------------------------------------
      *
@@ -74,7 +85,7 @@ class Auth extends \Myth\Auth\Config\Auth
      * @var array
      */
     public $views = [
-        'login'           => 'Myth\Auth\Views\login',
+        'login'           => 'Auth/login',
         'register'        => 'Myth\Auth\Views\register',
         'forgot'          => 'Myth\Auth\Views\forgot',
         'reset'           => 'Myth\Auth\Views\reset',

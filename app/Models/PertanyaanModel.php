@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class PertanyaanModel extends Model
 {
-    protected $table            = 'pertanyaan';
+    protected $table            = '2301020088_pertanyaan';
     protected $primaryKey       = 'id_pertanyaan';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
@@ -15,8 +15,8 @@ class PertanyaanModel extends Model
 
     public function getPertanyaanWithProdi()
     {
-        return $this->select('pertanyaan.*, prodi.nama_prodi')
-                    ->join('prodi', 'prodi.id_prodi = pertanyaan.id_prodi')
+        return $this->select('2301020088_pertanyaan.*, 2301020011_prodi.nama_prodi')
+                    ->join('2301020011_prodi', '2301020011_prodi.id_prodi = 2301020088_pertanyaan.id_prodi')
                     ->findAll();
     }
 }

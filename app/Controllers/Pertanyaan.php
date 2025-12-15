@@ -23,9 +23,9 @@ class Pertanyaan extends BaseController
             if ($assignedProdi) {
                 // Filter questions for this Prodi
                 // Note: getPertanyaanWithProdi joins prodi table. We can filter on prodi.id_prodi
-                $data['pertanyaan'] = $model->select('pertanyaan.*, prodi.nama_prodi')
-                                            ->join('prodi', 'prodi.id_prodi = pertanyaan.id_prodi')
-                                            ->where('pertanyaan.id_prodi', $assignedProdi['id_prodi'])
+                $data['pertanyaan'] = $model->select('2301020088_pertanyaan.*, 2301020011_prodi.nama_prodi')
+                                            ->join('2301020011_prodi', '2301020011_prodi.id_prodi = 2301020088_pertanyaan.id_prodi')
+                                            ->where('2301020088_pertanyaan.id_prodi', $assignedProdi['id_prodi'])
                                             ->findAll();
             } else {
                 $data['pertanyaan'] = [];
