@@ -58,3 +58,7 @@ Additionally, make sure that the following extensions are enabled in your PHP:
 - json (enabled by default - don't turn it off)
 - [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
 - [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+
+<img width="1914" height="908" alt="Screenshot 2025-12-15 204311" src="https://github.com/user-attachments/assets/3fc05be9-db61-472b-8da9-44b71f4478ab" />
+
+Created by computer science students at Raja Ali Haji Maritime University - Muhammad Febri Yansah
